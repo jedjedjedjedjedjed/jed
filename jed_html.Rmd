@@ -1,0 +1,109 @@
+---
+title: "Geog 456 Project"
+author: "jed"
+date: "1/30/2020"
+output:
+  html_document:
+    df_print: paged
+  hmtl_document: default
+  md_document:
+    variant: markdown_github
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##NCDOT Bike Crash Data Time Plotting
+
+This is a tutorial for working with NCDOT bike crash data to plot change over time using RStudio.
+
+First, we need to import the data.
+
+```{r}
+#Locate the file on your computer and name it something. We've chosen to name it "the_file"
+the_file <- "C:/Users/jed/Documents/School/Senior/Spring/GEOG 456/bikecrash.csv"
+
+#Next, open the .csv using the following line
+df <- read.csv(the_file)
+
+#head(df) will allow us to view the column names and first 6 rows of the data frame we opened
+head(df)
+```
+
+Packages are groups of opensource code that can be used within R. We need to download a few before moving forward.
+
+```{r}
+#There are a number of packages we will need to make sure we have downloaded before creating our 
+#visualizations. The lines below will install the packages we need and open their libraries.
+install.packages("ggplot2")
+install.packages("RColorBrewer")
+install.packages("stringi")
+install.packages("tidyverse")
+library(ggplot2)
+library(RColorBrewer)
+library("stringi")
+library(tidyverse)
+```
+
+Now, let's get to the temporal analyses. We can start by choosing the Locality Type variable to measure
+its change over time.
+
+
+Next, we want to create a variable that counts the number of crashes that occur in each Locality
+type so we are able to analyze it. The code below will create a variable called "monthly_count" 
+that will do this by each month.
+
+```{r}
+monthly_count <- df %>%
+  count(CrashMonth, Locality)
+```
+
+Now lets plot the data. Our data is monthly_count, and we are going to put the CrashMonth on the 
+x-axis and the number of crashes (n) on the y-axis. Grouping by Locality will separate our lines
+based on the Locality variable, and color = Locality will give each line a different color. The
+final part of the code, geom_line(), tells R to display our data as lines.
+
+```{r}
+ggplot(data = monthly_count, mapping = aes(x = CrashMonth, y = n, group = Locality, color = Locality)) +
+       geom_line()
+```
+
+This output looks good, but it isn't all that interesting. We might be able to learn more about
+when people crash if we display the data by hour rather than by month. Let's create a variable
+called hourly_count that does the same thing as monthly_count, but for every hour.
+
+```{r}
+hourly_count <- df %>%
+  count(CrashHour, Locality)
+```
+
+Now let's plot it again, but this time using hourly_count as our data.
+
+```{r}
+ggplot(data = hourly_count, mapping = aes(x = CrashHour, y = n, group = Locality, color = Locality)) +
+  geom_line()
+```
+
+Now we're getting somewhere. We can see that there are many more crashes in urbanized areas, and the 
+rate of crash increase is also much higher during rush hour in urbanized areas.
+Let's try to make our output easier to look at. Using the labs function, we can add a title as well as
+x- and y-axis labels. The theme_bw() function changes our chart from the default style to one that is
+more aesthetically pleasing. We can also change the relative size, color, and orientation of axis text
+using the theme() function as outlined below.
+
+```{r}
+ggplot(data = hourly_count, mapping = aes(x = CrashHour, y = n, group = Locality, color = Locality)) +
+  geom_line() +
+  labs(title = "Number of Crashes by Locality Type Throughout the Day",
+       x = "Hour",
+       y = "Crash Frequency") +
+  theme_bw() +
+  theme(axis.text.x = element_text(colour = "grey20", size = 12, angle = 45, hjust = 0.5, vjust = 0.5),
+        axis.text.y = element_text(colour = "grey20", size = 12),
+        text = element_text(size = 16))
+```
+
+This final output is useful for analysis and tells us a story about the data and how Locality type
+crash frequency changes throughout the day.
