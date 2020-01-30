@@ -39,11 +39,9 @@ Packages are groups of opensource code that can be used within R. We need to dow
 #visualizations. The lines below will install the packages we need and open their libraries.
 install.packages("ggplot2")
 install.packages("RColorBrewer")
-install.packages("stringi")
 install.packages("tidyverse")
 library(ggplot2)
 library(RColorBrewer)
-library("stringi")
 library(tidyverse)
 ```
 
